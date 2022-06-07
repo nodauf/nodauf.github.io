@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Nodauf</title><link>https://nodauf.dev/post/</link><description>Recent content in Posts on Nodauf</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 18 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nodauf.dev/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Setting up the environment</title><link>https://nodauf.dev/p/setting-up-the-environment/</link><pubDate>Fri, 20 Aug 2021 00:00:00 +0000</pubDate><guid>https://nodauf.dev/p/setting-up-the-environment/</guid><description>&lt;p>Configure a proper environment to play wih Web3, debug and audits smart contracts can be a pain at the beginning.&lt;/p>
+&lt;p>The purpose of this post is to rough out the tools to keep only the most interesting.&lt;/p>
+&lt;h1 id="solc">solc&lt;/h1>
+&lt;p>Solc is a compiler for the Solidity language. It transform the Solidity code into a bytecode.&lt;/p>
+&lt;h1 id="abigen">abigen&lt;/h1>
+&lt;h1 id="foundry">Foundry&lt;/h1>
+&lt;p>&lt;strong>Founrdry&lt;/strong> defined themself as:&lt;/p>
+&lt;blockquote>
+&lt;p>Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.
+It&amp;rsquo;s a swiss army knife for Ethereum application. It allows to fork the blockchain, deploy smart contract, directly call the smart contracts and more.&lt;/p>
+&lt;/blockquote>
+&lt;p>It is composed of three tools:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://github.com/foundry-rs/foundry/blob/master/forge" target="_blank" rel="noopener"
+>Forge&lt;/a>: Ethereum testing framework (like Truffle, Hardhat and Dapptools).&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/foundry-rs/foundry/blob/master/cast" target="_blank" rel="noopener"
+>Cast&lt;/a>: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/foundry-rs/foundry/blob/master/anvil" target="_blank" rel="noopener"
+>Anvil&lt;/a>: Used to fork the blockchain and run a local node like Ganache or Hardhat.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a class="link" href="https://github.com/foundry-rs/foundry#Installation" target="_blank" rel="noopener"
+>Installation instructions&lt;/a>&lt;/p>
+&lt;p>It is on of the most complete tool for auditing and developping smart contracts.&lt;/p>
+&lt;h1 id="hardhat">Hardhat&lt;/h1>
+&lt;h1 id="remix">Remix&lt;/h1>
+&lt;h1 id="truffle">Truffle&lt;/h1>
+&lt;h1 id="setup">Setup&lt;/h1>
+&lt;p>&lt;em>This post will be updated when new tools that can improve the environment are published&lt;/em>&lt;/p></description></item></channel></rss>

