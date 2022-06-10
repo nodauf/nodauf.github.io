@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Nodauf</title><link>https://nodauf.dev/post/</link><description>Recent content in Posts on Nodauf</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 18 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nodauf.dev/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Setting up the environment</title><link>https://nodauf.dev/p/setting-up-the-environment/</link><pubDate>Fri, 20 Aug 2021 00:00:00 +0000</pubDate><guid>https://nodauf.dev/p/setting-up-the-environment/</guid><description>&lt;p>Configure a proper environment to play wih Web3, debug and audits smart contracts can be a pain at the beginning.&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Nodauf</title><link>https://nodauf.dev/post/</link><description>Recent content in Posts on Nodauf</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nodauf.dev/post/index.xml" rel="self" type="application/rss+xml"/><item><title>Setting up the environment</title><link>https://nodauf.dev/p/setting-up-the-environment/</link><pubDate>Fri, 20 Aug 2021 00:00:00 +0000</pubDate><guid>https://nodauf.dev/p/setting-up-the-environment/</guid><description>&lt;p>Configure a proper environment to play wih Web3, debug and audits smart contracts can be a pain at the beginning.&lt;/p>
 &lt;p>The purpose of this post is to rough out the tools to keep only the most interesting.&lt;/p>
 &lt;h1 id="solc">solc&lt;/h1>
 &lt;p>Solc is a compiler for the Solidity language. It transform the Solidity code into a bytecode.&lt;/p>
@@ -20,7 +20,7 @@ It&amp;rsquo;s a swiss army knife for Ethereum application. It allows to fork th
 &lt;/ul>
 &lt;p>&lt;a class="link" href="https://github.com/foundry-rs/foundry#Installation" target="_blank" rel="noopener"
 >Installation instructions&lt;/a>&lt;/p>
-&lt;p>It is on of the most complete tool for auditing and developping smart contracts.&lt;/p>
+&lt;p>It is one of the most complete tool for auditing and developping smart contracts.&lt;/p>
 &lt;h1 id="hardhat">Hardhat&lt;/h1>
 &lt;h1 id="remix">Remix&lt;/h1>
 &lt;h1 id="truffle">Truffle&lt;/h1>
