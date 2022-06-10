@@ -1,7 +1,7 @@
 ---
 author: Nodauf
 title: Writeup 404CTF 2022 - public key (web3)
-date: 2022-05-18
+date: 2022-06-10
 tags: ["foundry", "solidity", "golang", "web3"]
 categories: "ctf"
 image: /images/404CTF.png
