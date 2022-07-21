@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>404CTF writeups on Nodauf</title><link>https://nodauf.dev/post/writeup-404ctf-22/</link><description>Recent content in 404CTF writeups on Nodauf</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nodauf.dev/post/writeup-404ctf-22/index.xml" rel="self" type="application/rss+xml"/><item><title>Writeup 404CTF 2022 - Contracts war 1 (web3)</title><link>https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-1-web3/</link><pubDate>Fri, 10 Jun 2022 00:00:00 +0000</pubDate><guid>https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-1-web3/</guid><description>&lt;img src="https://nodauf.dev/images/404CTF.png" alt="Featured image of post Writeup 404CTF 2022 - Contracts war 1 (web3)" />&lt;h1 id="statement">Statement&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>404CTF writeups on Nodauf</title><link>https://nodauf.dev/post/writeup-404ctf-22/</link><description>Recent content in 404CTF writeups on Nodauf</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Fri, 10 Jun 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nodauf.dev/post/writeup-404ctf-22/index.xml" rel="self" type="application/rss+xml"/><item><title>Writeup 404CTF 2022 - Contracts war 1 (web3)</title><link>https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-1-web3/</link><pubDate>Fri, 10 Jun 2022 00:00:00 +0000</pubDate><guid>https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-1-web3/</guid><description>&lt;img src="https://nodauf.dev/images/404CTF.png" alt="Featured image of post Writeup 404CTF 2022 - Contracts war 1 (web3)" />&lt;h2 id="statement">Statement&lt;/h2>
 &lt;p>The challenge statement is as follows:&lt;/p>
 &lt;blockquote>
 &lt;p>Agent, nous avons découvert un smart contract de Hallebarde qui permet d&amp;rsquo;obtenir de l&amp;rsquo;argent gratuitement. Il sert également à s&amp;rsquo;authentifier en tant que nouveau membre de Hallebarde. Nous voulons que vous vous fassiez passer pour un de leurs membres. Nous avons récemment trouvé un endpoint qui semble leur servir de portail de connexion. Introduisez-vous dans leur système et récupérez toutes les informations sensibles que vous pourrez trouver.&lt;/p>
@@ -102,14 +102,14 @@
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h1 id="exploitation">Exploitation&lt;/h1>
+&lt;/div>&lt;h2 id="exploitation">Exploitation&lt;/h2>
 &lt;p>The goal of the challenge is to execute the &lt;code>enterHallebarde()&lt;/code> function without having the transaction being reverted and connect to &lt;code>challenge.404ctf.fr&lt;/code> on port 30885 to give our address to get the flag.&lt;/p>
 &lt;p>There are two checks to pass in the &lt;code>enterHallebarde()&lt;/code> function to succeed:&lt;/p>
 &lt;ol>
 &lt;li>The sender&amp;rsquo;s balance must be greater than 100 ether or the sender is the owner of the contract.&lt;/li>
 &lt;li>The sender must be different from the origin of the transaction or the sender must be the owner of the contract.&lt;/li>
 &lt;/ol>
-&lt;h2 id="first-condition">First condition&lt;/h2>
+&lt;h3 id="first-condition">First condition&lt;/h3>
 &lt;p>There are two functions that can increase the balance: &lt;code>getMoney()&lt;/code> and &lt;code>transfer()&lt;/code>.&lt;/p>
 &lt;p>With &lt;code>getMoney()&lt;/code> you can get only 10000 wei which corresponds to 0.00000000000001 ether (&lt;a class="link" href="https://coinguides.org/ethereum-unit-converter-gwei-ether/" target="_blank" rel="noopener"
 >check with a converter online&lt;/a>). This function can be called only once a year.&lt;/p>
@@ -361,7 +361,7 @@
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>Running the code should generate a revert with the message &lt;strong>Soyez plus entreprenant !&lt;/strong>. This means, that we passed the first check that was &lt;code>require(balances[msg.sender] &amp;gt; 100 ether || boss == msg.sender, &amp;quot;Vous n'avez pas assez d'argent pour devenir membre de Hallebarde.&amp;quot;);&lt;/code>.&lt;/p>
-&lt;h2 id="second-condition">Second condition&lt;/h2>
+&lt;h3 id="second-condition">Second condition&lt;/h3>
 &lt;p>To bypass this check, we need to understand &lt;strong>tx.origin&lt;/strong> and &lt;strong>msg.sender&lt;/strong>. According to the &lt;a class="link" href="https://ethereum.org/en/whitepaper/#ethereum-accounts" target="_blank" rel="noopener"
 >ethereum whitepaper&lt;/a>:&lt;/p>
 &lt;blockquote>
@@ -572,7 +572,7 @@
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>The golang part was not necessary, but I wanted to show you how to use &lt;strong>golang&lt;/strong> to interact with the contract.&lt;/p>
-&lt;h1 id="recommendation">Recommendation&lt;/h1>
+&lt;h2 id="recommendation">Recommendation&lt;/h2>
 &lt;p>To avoid such vulnerabilities, the safeMath library or the 0.8 branch of the solidity compiler should be used and the &lt;code>transfer()&lt;/code> function should implement the appropriate &lt;code>require&lt;/code> function.&lt;/p></description></item><item><title>Writeup 404CTF 2022 - Contracts war 2 (web3)</title><link>https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-2-web3/</link><pubDate>Fri, 10 Jun 2022 00:00:00 +0000</pubDate><guid>https://nodauf.dev/p/writeup-404ctf-2022-contracts-war-2-web3/</guid><description>&lt;img src="https://nodauf.dev/images/404CTF.png" alt="Featured image of post Writeup 404CTF 2022 - Contracts war 2 (web3)" />&lt;h1 id="statement">Statement&lt;/h1>
 &lt;p>The challenge statement is as follows:&lt;/p>
 &lt;blockquote>
