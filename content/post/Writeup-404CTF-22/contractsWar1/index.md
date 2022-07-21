@@ -10,7 +10,7 @@ codeLineNumbers: true
 description: Writeup of web3 challenge of 404CTF 2022 - contracts war 1/2
 ---
 
-# Statement
+## Statement
 
 The challenge statement is as follows:
 
@@ -73,7 +73,7 @@ contract FreeMoney {
 }
 ```
 
-# Exploitation
+## Exploitation
 
 The goal of the challenge is to execute the `enterHallebarde()` function without having the transaction being reverted and connect to `challenge.404ctf.fr` on port 30885 to give our address to get the flag.
 
@@ -82,7 +82,7 @@ There are two checks to pass in the `enterHallebarde()` function to succeed:
 1. The sender's balance must be greater than 100 ether or the sender is the owner of the contract.
 2. The sender must be different from the origin of the transaction or the sender must be the owner of the contract.
 
-## First condition
+### First condition
 
 There are two functions that can increase the balance: `getMoney()` and `transfer()`.
 
@@ -222,7 +222,7 @@ func newTransactor(client *ethclient.Client, privateKeyStr string) *bind.Transac
 
 Running the code should generate a revert with the message **Soyez plus entreprenant !**. This means, that we passed the first check that was `require(balances[msg.sender] > 100 ether || boss == msg.sender, "Vous n'avez pas assez d'argent pour devenir membre de Hallebarde.");`.
 
-## Second condition
+### Second condition
 
 To bypass this check, we need to understand **tx.origin** and **msg.sender**. According to the [ethereum whitepaper](https://ethereum.org/en/whitepaper/#ethereum-accounts):
 
@@ -343,6 +343,6 @@ Faites attention, elle ne vous sera délivrée qu'une fois, ne la perdez pas !
 
 The golang part was not necessary, but I wanted to show you how to use **golang** to interact with the contract.
 
-# Recommendation
+## Recommendation
 
 To avoid such vulnerabilities, the safeMath library or the 0.8 branch of the solidity compiler should be used and the `transfer()` function should implement the appropriate `require` function.
