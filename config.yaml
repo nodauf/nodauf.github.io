@@ -1,8 +1,9 @@
 baseurl: https://nodauf.dev
 languageCode: en-us
-theme: hugo-theme-stack
+theme: ["hugo-notice","hugo-theme-stack"]
 paginate: 5
 title: Nodauf
+enableEmoji: true
 
 languages:
   en:
