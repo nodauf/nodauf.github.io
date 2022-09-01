@@ -372,7 +372,7 @@
 &lt;li>&lt;strong>msg.sender&lt;/strong> is the address of the account from which the call originated. It can be either an &lt;strong>externally owned account&lt;/strong> or a &lt;strong>contract account&lt;/strong>.&lt;/li>
 &lt;/ul>
 &lt;p>By analogy with network address, &lt;strong>tx.origin&lt;/strong> is like an IP address and &lt;strong>msg.sender&lt;/strong> is like an &lt;strong>arp address&lt;/strong>.&lt;/p>
-&lt;p>Thus, the condition &lt;code>msg.sender != tx.origin&lt;/code> means that the transaction must come from a contract account. Basically, we have to do the previous part written in Golang in Solidity. :smile:.&lt;/p>
+&lt;p>Thus, the condition &lt;code>msg.sender != tx.origin&lt;/code> means that the transaction must come from a contract account. Basically, we have to do the previous part written in Golang in Solidity. 😄.&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1

